@@ -12,4 +12,6 @@ soup = BeautifulSoup(data.text, 'html.parser')
 title = soup.select_one('meta[property="og:title"]')['content']
 image = soup.select_one('meta[property="og:image"]')['content']
 desc = soup.select_one('meta[property="og:description"]')['content']
-print(title,image,desc)
+url = soup.select_one('meta[property="og:url"]')['content']
+#cards-box > div:nth-child(1) > div > div > p.read-more-container
+print(title,image,desc,url)
