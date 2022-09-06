@@ -1,21 +1,16 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
-
     <title>python공부 꿀팁사이트</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
-
     <style>
         * {
             font-family: 'Gowun Dodum', sans-serif;
@@ -86,13 +81,19 @@
         .mybtns > button {
             margin-right: 10px;
         }
+        .btns {
+            margin-left: auto;
+        }
+        .btns > button {
+             border: 1px solid white;
+            font-size: small;
+        }
 
     </style>
     <script>
         $(document).ready(function () {
             listing();
         });
-
         function listing() {
             $.ajax({
                 type: 'GET',
@@ -101,68 +102,124 @@
              success: function (response) {
                     let rows = response['pythonthema']
                     for (let i = 0; i < rows.length; i++) {
+                        let num = rows[i]['num']
                         let comment = rows[i]['comment']
                         let title = rows[i]['title']
                         let desc = rows[i]['desc']
                         let image = rows[i]['image']
                         let star = rows[i]['star']
-
                         let star_image = '⭐'.repeat(star)
-
-                       let temp_html = `<div class="col">
+                        let temp_html = `<div class="col">
                                             <div class="card h-100">
                                                 <img src="${image}"
                                                      class="card-img-top">
                                                 <div class="card-body">
                                                     <h5 class="card-title">${title}</h5>
-
                                                     <p class="card-text">${desc}</p>
                                                     <p>${star_image}</p>
                                                     <p class="mycomment">${comment}</p>
-                                                        <button  type="button" class="btn btn-outline-secondary btn-sm">
-                                                                수정
-                                                         </button>
-                                                         <button  type="button" class="btn btn-outline-secondary btn-sm">
-                                                                삭제
-                                                        </button>
+                                                </div>
+                                                <div class="btns">
+                                                     <button onclick="open_edit(${num})" type="button" class="btn btn-outline-secondary btn-sm">수정</button>
+                                                     <button onclick="delete_edit()" type="button" class="btn btn-outline-secondary btn-sm">삭제</button>
                                                 </div>
                                             </div>
                                         </div>`
                         $('#cards-box').append(temp_html)
                     }
-
-
-
                 }
             })
         }
-
+        // 저장 자바스크립트 함수
+        // 사이트 url, 별점, 코멘트 입력 후, 사이트기록하기 버튼을 클릭하면,
+        // posting 함수로 이동되어 여기로 도착
         function posting() {
-            let url = $('#url').val()
-            let star = $('#star').val()
-            let comment = $('#comment').val()
-
-            $.ajax({
-                type: 'POST',
-                url: '/pythonthema',
-                data: {url_give: url, star_give:star, comment_give:comment },
-                success: function (response) {
-                    alert(response['msg'])
-                    window.location.reload()
+            let url = $('#url').val()          //  input에 입력한 id: url 의 입력된 값을 가져와서 url로 넣는다.
+            let star = $('#star').val()        //  input에 입력한 id: star 의 입력된 값을 가져와서 star 로 넣는다.
+            let comment = $('#comment').val()  // input에 입력한 id: comment의 입력된 값을 가져와서 comment로 넣는다.
+            let num = $('#num').val()          // ★★★num 값을 추가 2022-09-06 오후9:02분 // num값이 pythonthema db에 들어온것 확인 num:12 // 2022-09-06 오후9:05분★★★
+            $.ajax({                           // ajax POST 방식으로 /pythonthema 경로로 , data{url_give: url, star_give:star, comment_give:comment }를 보낸다.
+                type: 'POST',                   // POST 요청
+                url: '/pythonthema',            // app.py 파일의 /pythonthema 경로로 'POST' 요청을 보낸다.
+                data: {url_give: url, star_give:star, comment_give:comment, num_give:num}, // num 값 전달 추가
+                success: function (response) {    // 성공하면 reponse에 url, star, comment의 값을 담아 보낸다.
+                    alert(response['msg'])       // 'msg' 를 얼럿으로 띄운다.
+                    window.location.reload()     // 페이지 새로고침 한다.
                 }
             });
         }
-
+        //상단 꿀팁 사이트 공유하기 입력 박스 열기
         function open_box() {
-            $('#post-box').show()
+            $('#post-box').show() // id: post-box
         }
-
         function close_box() {
             $('#post-box').hide()
         }
+        // 수정 버튼 클릭시 onclick 이벤트를 통해서, open_edit 함수로 이동되어 여기로 온다.
+        function open_edit(num){ // num 값을 가져온다
+            // $('#edit-box').empty()
+            $('#edit-box').show()  // edit-box 노출
+            $.ajax({
+                type: 'GET',       // ajax 'GET' 요청 형식으로 서버와 통신 한다.
+                url: '/open/edit', // app.py에 경로 /oepn/edit 으로 보낸다.
+                data:{},
+                success: function (response){
+                    // 2022-09-06 오전 2시 28분 /edit url로 보내는 ajax까지 도착했다 ------------------------------------
+                    let rows = (response)['/open/edit']
+                    for(let i = 0; i < rows.length; i++) {
+                        let num1 = rows[i]
+                       let comment = rows[i]['comment']
+                        let title = rows[i]['title']
+                        let desc = rows[i]['desc']
+                        let image = rows[i]['image']
+                        let star = rows[i]['star']
+                        let star_image = '⭐'.repeat(star)
+                        let temp_html = ``  // 처음 temp_html `` 그대로 값을 가져오고
+                        if(num === num1) {   // app.py 에 num1 은 num 값에 +1 해준것으로 해서 num1 =num1 일경우에 수정한 edit box를 붙이도록 만든다.
+                            temp_html = `<div class="col">
+                                            <div class="card h-100">
+                                               <img src="${image}">    <!-- 마찬가지로 image 값을 받아온다.-->
+                                                     class="card-img-top">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${title}</h5>  <!-- 마찬가지로 title 값을 받아온다.-->
+                                                    <p class="card-text">${desc}</p>      <!-- 마찬가지로 desc 값을 받아온다.-->
+                                                    <p>${star_image}</p>                  <!-- 마찬가지로 star image 값을 받아온다.-->
+                                                    <p class="mycomment">${comment}</p>   <!-- 마찬가지로 comment 값을 받아온다.-->
+                                                </div>
+                                                <div class="mybtn">
+       <!-- 마찬가지로 num 값을 받아온다.-->               <button onclick="edit_order(${num})" type="button" class="btn btn-outline-secondary btn-sm">수정하기</button>
+                                                      <button onclick="close_edit()" type="button" class="btn btn-outline-secondary btn-sm">닫기</button>
+                                                </div>
+                                            </div>
+                                        </div>`
+                        }else{
+                            temp_html = ``
+                        }
+                        $('#edit-box').append(temp_html)
+                    }
+                }
+            })
+        }
+           // 수정입력 박스 닫기, 수정입력박스 id: #edit-box , empty() 이용해서 처음엔 안보이게 설정
+        function close_edit(){
+            $('#edit-box').empty()
+            $('#eidt-box').hide()
+        }
+        //수정하기 버튼 선택 시, edit_order() 함수실행
+        function edit_order(num){
+            let title = $('#title_e').val()
+                $.ajax({
+                    type: "POST",
+                    url: "/saveedit",
+                    data: {num_give: num, title_give: title},
+                    success: function (response){
+                        alert(response["msg"])
+                        window.location.reload()
+                    }
+                });
+        }
     </script>
 </head>
-
 <body>
 <div class="mytitle">
     <h1>python 공부꿀팁사이트</h1>
@@ -173,7 +230,7 @@
         <input id="url" type="email" class="form-control" placeholder="name@example.com">
         <label>꿀팁사이트URL</label>
     </div>
-    <div class="input-group mb-3">
+    <div class="form-floating mb-3">
         <label class="input-group-text" for="inputGroupSelect01">별점</label>
         <select class="form-select" id="star">
             <option selected>-- 선택하기 --</option>
@@ -184,20 +241,20 @@
             <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
     </div>
-    <div class="form-floating">
+    <div class="form-floating mb-3">
         <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
         <label for="floatingTextarea2">코멘트</label>
     </div>
     <div class="mybtns">
         <button onclick="posting()" type="button" class="btn btn-dark">사이트기록하기</button>
+        <!--사이트기록하기 버튼 선택 > posting() 함수로 이동됨 -->
         <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
     </div>
 </div>
+<!----------  여기까지가 id : post-box 인 <div>영역  --------------------------------------------------------------------->
 <div class="mycards">
     <div class="row row-cols-1 row-cols-md-2 g-4" id="cards-box">
-
     </div>
 </div>
 </body>
-
 </html>
