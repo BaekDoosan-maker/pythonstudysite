@@ -17,10 +17,9 @@ def home():
 
 #파이썬테마 - POST요청
 # ajax POST 방식으로 /pythonthema 경로로 ,
-#
 # data{url_give: url, star_give:star, comment_give:comment }를 받는다.
 @app.route("/pythonthema",methods=["POST"])
-def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pythonthema_list) + 1 추가    2022-09-06-오후8:48분
+def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pythonthema_list) + 1 추가
     url_receive = request.form['url_give']
     star_receive = request.form['star_give']
     comment_receive = request.form['comment_give']
@@ -34,7 +33,7 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
     desc = soup.select_one('meta[property="og:description"]')['content']
     pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
     count = len(pythonthema_list) + 1
-    print(count)
+    # print(count)
     doc = {  # dac안에 title, image, desc, star, comment값을 넣는다.
         'num': count,
         'title': title,
@@ -44,13 +43,8 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
         'comment': comment_receive
     }
     db.pythonthema.insert_one(doc)  # doc에 담긴것을db에  insert 한다.
-
     return jsonify({'msg': '저장 완료!'}) # 저장완료 메시지를 노출함
 
-#pythonthema- post 저장 id 값 len으로 저장 ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-        # title_receive = request.form["title_give"];
-        # posts = list(db.posts.find({}));
-        # db.pythonthema.insert_one({"title": title_receive, "id": len(posts)});
 
 #pythonthema 기록하기 - GET요청
 @app.route("/pythonthema", methods=["GET"])
@@ -63,19 +57,38 @@ def pythonthema_get():
 @app.route("/open/edit", methods=["GET"])
 def edit_get():
     edit_list = list(db.pythonthema.find({},{'_id':False}))
+    print(edit_list) # edit_list에 값이 들어오는것을 확인
     return jsonify({'/open/edit':edit_list})
 
 #pythonthema - 수정 POST요청, title, 별점, 코멘트 데이터 수정용 POST API 구성
-@app.route("/saveedit", methods=["POST"])
+@app.route("/save/edit", methods=["POST"])
 def edit_post():
-    num_receive = request.form['num_give']
+    # url_receive = request.form['url_give']                  #url
+    title_receive = request.form['title_give']              #title
+    star_receive = request.form['star_give']                #별점
+    comment_receive = request.form['comment_give'];         #코멘트
+    num_receive = request.form['num_give']                  # num
 
-    star_image_receive = request.form['star_image_give'] #새로운 별점
-    title_receive = request.form["title_give"];
-    posts = list(db.posts.find({}));
-    db.posts.insert_one({"title": title_receive, "id": len(posts)});
-    # db.movies.update_one({'num':int(num_receive),'title': old_title_receive}, {"$set": {'title': title_receive}});  # 업데이트쿼리문
+    db.pythonthema.update_one({"$set": {'title': title_receive}});
+    db.pythonthema.update_one({"$set": {'star': star_receive}});
+    db.pythonthema.update_one({"$set": {'comment': comment_receive}});
+    db.pythonthema.update_one({"$set": {'num': num_receive}});
+    print(num_receive)
     return jsonify({'msg': '저장완료!'})
 
+#pythonthema - 삭제 요청, title, 별점, 코멘트 데이터 삭제용 API 구성
+@app.route("/delete", methods=["POST"])
+def delete_post():
+    # 지우기 - 예시
+    # db.users.delete_one({'name': 'bobby'})
+    # pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
+    # count = len(pythonthema_list) + 1
+
+    num_receive = db.users.find_one({'num':'num_give'})
+    db.pythonthema.delete_one({'num':num_receive})
+
+    return jsonify({'msg': '삭제완료'})
+
+
 if __name__ == '__main__':
-    app.run('0.0.0.0', port=5000, debug=True)
+    app.run('0.0.0.0', port=5000, debug=True)    #로컬 포트 5000설정
