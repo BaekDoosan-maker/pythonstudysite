@@ -33,7 +33,7 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
     desc = soup.select_one('meta[property="og:description"]')['content']
     pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
     count = len(pythonthema_list) + 1
-    # print(count)
+
     doc = {  # dac안에 title, image, desc, star, comment값을 넣는다.
         'num': count,
         'title': title,
@@ -42,7 +42,9 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
         'star': star_receive,
         'comment': comment_receive
     }
+
     db.pythonthema.insert_one(doc)  # doc에 담긴것을db에  insert 한다.
+
     return jsonify({'msg': '저장 완료!'}) # 저장완료 메시지를 노출함
 
 
@@ -63,17 +65,25 @@ def edit_get():
 #pythonthema - 수정 POST요청, title, 별점, 코멘트 데이터 수정용 POST API 구성
 @app.route("/save/edit", methods=["POST"])
 def edit_post():
-    # url_receive = request.form['url_give']                  #url
-    title_receive = request.form['title_give']              #title
-    star_receive = request.form['star_give']                #별점
-    comment_receive = request.form['comment_give'];         #코멘트
+    # 바꾸기 - 예시
+    # db.users.update_one({'name': 'bobby'}, {'$set': {'age': 19}})
+    # url_receive = request.form['url_give']                # url
+    comment_receive = request.form['comment_give'];         # 코멘트
+    title_receive = request.form['title_give']              # title
+    desc_receive = request.form['desc_give']                # desc
+    image_receive = request.form['image_give']              # image
+    star_receive = request.form['star_give']                # 별점
+    star_image_receive = request.form['star_image_give']    # 별점이미지
     num_receive = request.form['num_give']                  # num
 
-    db.pythonthema.update_one({"$set": {'title': title_receive}});
-    db.pythonthema.update_one({"$set": {'star': star_receive}});
-    db.pythonthema.update_one({"$set": {'comment': comment_receive}});
-    db.pythonthema.update_one({"$set": {'num': num_receive}});
-    print(num_receive)
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'comment': comment_receive}});        # 코멘트
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'title': title_receive}});            # title
+    db.pythonthema.update_one({'num':'num_receive'},{"$set":{'desc':desc_receive}});                # desc
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'image': image_receive}});            # image
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'star': star_receive}});              # 별점
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'star_image': star_image_receive}});  # 별점이미지
+    db.pythonthema.update_one({'num':'num_receive'},{"$set": {'num': num_receive}});                # num
+
     return jsonify({'msg': '저장완료!'})
 
 #pythonthema - 삭제 요청, title, 별점, 코멘트 데이터 삭제용 API 구성
@@ -83,9 +93,14 @@ def delete_post():
     # db.users.delete_one({'name': 'bobby'})
     # pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
     # count = len(pythonthema_list) + 1
+   # db.pythonthema.find({},{'num':False})
+    pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
+    count = len(pythonthema_list)
+    print(count)
+    db.pythonthema.delete_one({'num':count})
 
-    num_receive = db.users.find_one({'num':'num_give'})
-    db.pythonthema.delete_one({'num':num_receive})
+    # num_receive = db.users.find_one({'num':'num_give'})
+    # db.pythonthema.delete_one({'num':num_receive})
 
     return jsonify({'msg': '삭제완료'})
 

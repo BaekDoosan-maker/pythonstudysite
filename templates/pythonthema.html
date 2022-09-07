@@ -199,6 +199,7 @@
         }
         //delete_edit
           function delete_edit(num){
+            $('#delete-box').empty() //
             $('#delete-box').show()  //id: delete-box
 
             let temp_html = `<h3>삭제하시겠습니까?</h3>
@@ -274,26 +275,26 @@
                                                 <input type ="text" class="form-control" id="title_e" value="${title}">
                                                 <label for ="title">꿀팁사이트 URL</label>
                                             </div>
-                                            <!--desc
+                                            <!--desc>-->
                                             <div class="form-floating mb-3">
                                                 <input type ="text" class="form-control" id="desc_e" value="${desc}">
                                                 <label for ="desc">desc</label>
-                                            </div>-->
-                                            <!--image
+                                            </div
+                                            <!--image-->
                                             <div class="form-floating mb-3">
                                                 <input type ="text" class="form-control" id="image_e" value="${image}">
                                                 <label for ="image">image</label>
-                                            </div>-->
+                                            </div>
                                             <!--별점-->
                                             <div class="form-floating mb-3">
                                                 <input type = "text" class="form-control" id="star_e" value="${star}">
                                                 <label for = "star">별점</label>
                                             </div>
-                                            <!--별점이미지
+                                             <!--별점이미지-->
                                             <div class="form-floating mb-3">
                                                 <input type = "text" class="form-control" id="star_image_e" value="${star_image}">
                                                 <label for = "star_image">별점이미지</label>
-                                            </div>-->
+                                            </div>
                                             <!--코멘트-->
                                             <div class="form-floating mb-3">
                                                 <input type = "text" class="form-control" id="comment_e" value="${comment}">
@@ -319,16 +320,18 @@
         }
         //수정하기 버튼 선택 시, edit_order() 함수실행
         function edit_order(num){
+
             let title = $('#title_e').val()              //title
+            let desc = $('#desc_e').val()                //desc
             let star = $('#star_e').val()                //star
             let comment = $('#comment_e').val()          //comment
-           // let desc = $('#desc_e').val()                //desc
-           // let image = $('#image_e').val()              //image
-            //  let star_image = $('#star_image_e').val()    //star_image
+
+            let image = $('#image_e').val()              //image
+            let star_image = $('#star_image_e').val()    //star_image
                 $.ajax({
                     type: "POST",
                     url: "/save/edit",
-                    data: {num_give: num, title_give: title, star_give: star, comment_give: comment},
+                    data: {num_give: num, title_give: title, star_give: star, comment_give: comment, desc_give_: desc, image_give: image, star_image_give: star_image},
                     success: function (response) {
                         alert(response["msg"])
                         window.location.reload()
@@ -376,7 +379,7 @@
     </div>
 </div>
 <div class="mycards">
-    <div class="row row-cols-1 row-cols-md-2 g-4" id="cards-box">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
     </div>
 </div>
 <div class="wrap">
