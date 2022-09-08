@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 페이지</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <section class="signup-form" lang="ko">
+        <h1 style="color:white"> 항해99 </h1>
+        <form action="">
+            <div class="int-area">
+                <input type="text" name="email" id="email"
+                autocomplete="off" required>
+                <label for="email">
+                    // 1.이메일 입력
+                </label>
+            </div>
+            <div class="int-area">
+                <input type ="password" name="pw" id="pw"
+                autocomplete="off" required>
+                <label for="pw">
+                    // 2.비밀번호 입력
+                </label>
+            </div>
+            <!--         회원가입 버튼-->
+            <div class="btn-area">
+                <button type="submit" class="btn" onclick="save_signup_input()">회원가입</button>
+            </div>
+        </form>
+        <script>
+         function save_signup_input() {
+               // 1. 이메일 입력
+                let email = $('#email').val()
+                // 2. 비밀번호 입력
+                let pw = $('#pw').val()
+                $.ajax({
+                    type: "POST",
+                    url: "/api/signup",
+                    data: {
+                        email_give: email, // 1. 이메일 입력
+                        pw_give: pw,       // 2. 비밀번호 입력
+                    }
+                }).done(function (response) {
+                    if (response['result'] === 'success') {
+                        alert('회원가입 성공')
+                        window.location.href = '/'
+                    } else {
+                        alert(response['msg'])
+                    }
+                })
+                }
+        </script>
+        <script>
+            $(document).ready(function () {
+                $.ajax({
+                    type: "GET",
+                    url: "/user/signup",
+                    data: {},
+                    success: function (response) {
+                        let rows = response['users'];
+                        for(let i=0; i<rows.length;i++){
+                            let email = rows[i]['email'];               // 1. 이메일 입력
+                            let pw = rows[i]['pw'];                     // 2. 비밀번호 입력
+
+
+                            let temp_html = `<tr>
+                                <td>${email}</td>
+                                <td>${pw}</td>
+
+                            </tr>`
+                          $('#signupinput-box').append(temp_html);
+                        }
+                    }
+                });
+            });
+        </script>
+        <table class="table">
+    <thead>
+    <tr>
+        <th scope="col">email</th>
+        <th scope="col">pw</th>
+
+
+    </tr>
+    </thead>
+    <tbody id="signupinput-box">
+    </tbody>
+</table>
+    </section>
+</body>
+</html>

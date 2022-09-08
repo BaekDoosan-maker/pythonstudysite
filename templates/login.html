@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<!-- kakao 간편 로그인 api 영역-->
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script>
+          //e3c04fecad73ab552d72eb27d783e6d2
+          window.Kakao.init("e3c04fecad73ab552d72eb27d783e6d2");
+          function kakaoLogin(){
+            window.Kakao.Auth.login({
+              scope: 'profile, account_email, gender',
+              success: function (authObj) {
+                console.log(authObj);
+                window.Kakao.API.request({
+                    url:'/v2/user/me',
+                    success: res => {
+                        const kakao_account = res.kakao_account;
+                        console.log(kakao_account);
+                    }
+                });
+              }
+            });
+          }
+        </script>
+<!-- 항해99 로그인창 영역 시작-->
+    <section class="login-form" form name="login_form" lang="ko">
+        <h1 style="color:white"> 항해99 </h1>
+        <form action="">
+            <div class="int-area">
+                <input type="text" name="email" id="email"
+                autocomplete="off" required>
+                <label for="email">example@email.com</label>
+            </div>
+            <div class="int-area">
+                <input type ="password" name="pw" id="pw"
+                autocomplete="off" required>
+                <label for="pw">password</label>
+            </div>
+          <div class="btn-area">
+            <button id="btn"
+            type="submit" value="Log In" onclick="hanghae99login()">로그인</button>
+          </div>
+        </form>
+      <div class="caption">
+           <!-- 카카오 버튼 영역  -->
+          <div class="kakao-btn-area">
+              <a href="javascript:kakaoLogin();"><img src="https://www.gb.go.kr/Main/Images/ko/member/certi_kakao_login.png" style="height:50px;width:auto;"></a>
+          </div>
+          <br>
+<!--          회원가입으로 이동하기-->
+<!--          회원가입 페이지로 이동하기-->
+            <a href="/signup">회원가입</a>
+      </div>
+    </section>
+    <script>
+        //항해99 로그인창 영역 시작
+        // 로그인 버튼 클릭시
+        // 1. 아이디, 비밀번호 입력값 가져오기
+        // 2. 입력값이 없으면 경고창 띄우기
+        // 3. 입력값이 있으면 서버로 전송
+        // 4. 서버에서 응답이 오면 로그인 성공/실패 여부 판단
+        // 5. 로그인 성공시 메인페이지로 이동
+        // 6. 로그인 실패시 경고창 띄우기
+        function hanghae99login() {
+            let email = $('#email');
+            let pw = $('#pw');
+               if (email.val() == '' || pw.val() == '') {
+                    alert('아이디와 비밀번호를 입력해주세요.');
+                } else {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/api/login',
+                        data: {
+                            email_give: email,
+                            pw_give: pw
+                        },
+                        success: function (response) {
+                            if (response['result'] == 'success') {
+                                alert('로그인 성공');
+                                location.href = '/main';
+
+                            } else {
+                                alert(response['msg']);
+                            }
+                        }
+                    });
+                }
+
+        }
+    </script>
+</body>
+</html>
