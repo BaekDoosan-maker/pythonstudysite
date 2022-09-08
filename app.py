@@ -56,40 +56,27 @@ def pythonthema_get():
     return jsonify({'pythonthema':pythonthema_list})
 
 
-#pythonthema 수정 GET요청 - edit요청, title, 별점, 코멘트 데이터 수정용 GET API 구성
+#pythonthema 수정 GET요청 API 구성
 @app.route("/open/edit", methods=["GET"])
 def edit_get():
-    edit_list = list(db.pythonthema.find({}, {'_id': False}))
-    # print(edit_list)  # edit_list에 값이 들어오는것을 확인
-    return jsonify({'/open/edit': edit_list})
+    num_receive = request.args.get('num_give')
+    pythonthema_list = list(db.pythonthema.find({'num': int(num_receive)}, {'_id': False}))
+    print(pythonthema_list)
+    return jsonify({'pythonthema': pythonthema_list})
+
 
 #pythonthema - 수정 POST요청, title, 별점, 코멘트 데이터 수정용 POST API 구성
 @app.route("/save/edit", methods=["POST"])
 def edit_post():
-    comment_receive = request.form['comment_give']  # 코멘트
-    title_receive = request.form['title_give']  # title
-    desc_receive = request.form['desc_give']  # desc
-    image_receive = request.form['image_give']  # image
-    star_receive = request.form['star_give']  # 별점
-    star_image_receive = request.form['star_image_give']  # 별점이미지
-
-    num_receive = request.form['num_give'];
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'title': title_receive}})
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'desc': desc_receive}})
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'image': image_receive}})
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'star': star_receive}})
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'star_image': star_image_receive}})
-    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'comment': comment_receive}})
-    print(num_receive)  # num값이 들어오는것을 확인
+    num_receive = request.form['num_give']
+    url_receive = request.form['url_give']
+    star_receive = request.form['star_give']
+    comment_receive = request.form['comment_give']
+    db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'url': url_receive, 'star': star_receive, 'comment': comment_receive}})
     return jsonify({'msg': '수정 완료!'})
 
-#pythonthema - 삭제 요청, title, 별점, 코멘트 데이터 삭제용 API 구성
+#pythonthema - 삭제 요청 API 구성
 @app.route("/delete", methods=["POST"])
-# def delete_post():
-#     pythonthema_list = list(db.pythonthema.find({}, {'_id': False}))
-#     count = len(pythonthema_list)
-#     db.pythonthema.delete_one({'num':count})
-#     return jsonify({'msg': '삭제완료'})
 def delete_post():
     num_receive = request.form['num_give'];
     db.pythonthema.delete_one({'num': int(num_receive)})
