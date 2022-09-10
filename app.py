@@ -1,13 +1,19 @@
+import self as self
+from flask import Flask, render_template, request, jsonify
 import flask
 import passlib
 from flask import Flask, render_template, session, redirect, jsonify, request, url_for
 from functools import wraps
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
+
+from pythonstudysite import user
+
 app = Flask(__name__)
 # 플라스크 설치
 import requests
 from bs4 import BeautifulSoup
 # 웹크롤링용 bs4 추가
+
 app = Flask(__name__)
 app.secret_key = b'\xcc^\x91\xea\x17-\xd0W\x03\xa7\xf8J0\xac8\xc5'
 # 몽고디비계정연결
@@ -15,7 +21,18 @@ from pymongo import MongoClient
 client = MongoClient('mongodb+srv://test:sparta@cluster0.9cihgwo.mongodb.net/Cluster0?retryWrites=true&w=majority')
 db = client.dbsparta
 
-# 로그인페이지에서 시작
+
+# Decorators
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            return redirect('/')
+
+    return wrap
+
 @app.route('/')
 def home():
     return render_template('login.html')
@@ -65,25 +82,20 @@ def api_signup_post():
 # 로그인페이지로 이동하기
 @app.route('/login')
 def login():
-
-
     return render_template('login.html')
 # 로그인페이지에서 로그인버튼 누르면
 @app.route('/api/login', methods=['POST'])
-def api_login():
-    # 클라이언트로부터 데이터를 받음
-    email_receive = request.form['email_give']
-    pw_receive = request.form['pw_give']
-    # email이 해당하는 데이터 찾기 & pw 확인
-    result = db.user.find_one({'email': email_receive})
-    # 비밀번호가 일치하는 경우 로그인 성공 처리
-    if result is not None and pbkdf2_sha256.verify(pw_receive, result['pw']):
-        session['user'] = result['email']
-        return jsonify({'result': 'success'})
-    # 비밀번호가 틀리는 경우 로그인 실패 처리
-    else:
-        return jsonify({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'})
+def api_login(self):
 
+
+    # email이 해당하는 데이터 찾기 & pw 확인
+    result = db.user.find_one({
+        'email': request.form.get('email')
+    })
+    # 비밀번호가 일치하는 경우 로그인 성공 처리
+    if user and pbkdf2_sha256.verify(request.form.get('password'), user['password']):
+        return self.start_session(user)
+    return jsonify({"error": "Invalid login credentials"}), 401
 
 # 로그아웃
 @app.route('/logout')
@@ -130,7 +142,6 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
     comment_receive = request.form['comment_give']
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-
     data = requests.get(url_receive, headers=headers)
     soup = BeautifulSoup(data.text,'html.parser')
     title = soup.select_one('meta[property="og:title"]')['content']
@@ -147,15 +158,18 @@ def pythonthema_post():  # pythonthema_post() 함수 실행 // count = len(pytho
         'star': star_receive,
         'comment': comment_receive
     }
-
     db.pythonthema.insert_one(doc)  # doc에 담긴것을db에  insert 한다.
 
     return jsonify({'msg': '저장 완료!'}) # 저장완료 메시지를 노출함
+
+
 #pythonthema 기록하기 - GET요청
 @app.route("/pythonthema", methods=["GET"])
 def pythonthema_get():
     pythonthema_list = list(db.pythonthema.find({}, {'_id':False}))
     return jsonify({'pythonthema':pythonthema_list})
+
+
 #pythonthema 수정 GET요청 API 구성
 @app.route("/open/edit", methods=["GET"])
 def edit_get():
@@ -163,6 +177,8 @@ def edit_get():
     pythonthema_list = list(db.pythonthema.find({'num': int(num_receive)}, {'_id': False}))
     print(pythonthema_list)
     return jsonify({'pythonthema': pythonthema_list})
+
+
 #pythonthema - 수정 POST요청, title, 별점, 코멘트 데이터 수정용 POST API 구성
 @app.route("/save/edit", methods=["POST"])
 def edit_post():
@@ -172,6 +188,7 @@ def edit_post():
     comment_receive = request.form['comment_give']
     db.pythonthema.update_one({'num': int(num_receive)}, {'$set': {'url': url_receive, 'star': star_receive, 'comment': comment_receive}})
     return jsonify({'msg': '수정 완료!'})
+
 #pythonthema - 삭제 요청 API 구성
 @app.route("/delete", methods=["POST"])
 def delete_post():
@@ -180,6 +197,8 @@ def delete_post():
     print(num_receive)  # num값이 들어오는것을 확인
     return jsonify({'msg': '삭제 완료!'})
 
+
 # 포트 8080 실행 ====================================================================================================================
 if __name__ == '__main__':
-    app.run('0.0.0.0', port=8080, debug=True)
+    app.run('0.0.0.0', port=8080, debug=True)   # debug=True로 설정하면 코드 수정시 자동으로 서버가 재시작된다.
+

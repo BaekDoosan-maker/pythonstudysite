@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,6 +7,8 @@
     <title>Document</title>
     <link rel="stylesheet" href="../static/style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="../static/script.js"></script>
+    <extends name="base.html"></extends>
 </head>
 <body>
 <!-- kakao 간편 로그인 api 영역-->
@@ -32,9 +35,9 @@
 <!-- 항해99 로그인창 영역 시작-->
     <section class="login-form" form name="login_form" lang="ko">
         <h1 style="color:white"> 항해99 </h1>
-        <form action="">
+        <form name="signup_form" action="">
             <div class="int-area">
-                <input type="text" name="email" id="email"
+                <input type="email" name="email" class="field" id="email"
                 autocomplete="off" required>
                 <label for="email">example@email.com</label>
             </div>

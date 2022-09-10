@@ -218,74 +218,7 @@
                 }
             });
         }
-        // 수정 버튼 클릭시 onclick 이벤트를 통해서, open_edit 함수로 이동되어 여기로 온다.
-        function open_edit(num){ // num 값을 가져온다
-            $('#edit-box').empty() // id: edit-box를 비운다.
-            $('#edit-box').show()  // id: edit-box를 보여준다.
-            $.ajax({               // ajax GET 방식으로 /edit 경로로 num 값을 보낸다.
-                type: 'GET',       // GET 요청
-                url: '/open/edit',      // app.py 파일의 /edit 경로로 'GET' 요청을 보낸다.
-                data: {num_give: num}, // num 값을 보낸다.
-                success: function (response) { // 성공하면 response에 num, url, star, comment 값을 담아 보낸다.
-                    let rows = (response['pythonthema']) // pythonthema 테이블의 모든 값을 rows에 담는다.
-                     for (let i=0; i<rows.length; i++){
-                         let num1 = rows[i]['num'] // num 값을 num1에 담는다.
-                         let url = rows[i]['url'] // url 값을 url에 담는다.
-                         let star = rows[i]['star'] // star 값을 star에 담는다.
-                         let comment = rows[i]['comment'] // comment 값을 comment에 담는다.
-                         let temp_html = `` // temp_html에 html 코드를 담는다.
 
-                         if(num === num1) {
-                             temp_html = `
-                                             <div class="edit-box">
-                                                 <div class="edit-box-title">
-                                                     <h3>사이트 수정하기</h3>
-                                                 </div>
-                                                 <div class="edit-box-content">
-                                                     <div class="edit-box-content-url">
-                                                         <input type="text" id="url_e" value="${url}">
-                                                     </div>
-                                                     <div class="edit-box-content-star">
-                                                         <input type="text" id="star_e" value="${star}">
-                                                     </div>
-                                                     <div class="edit-box-content-comment">
-                                                         <input type="text" id="comment_e" value="${comment}">
-                                                     </div>
-                                                     <div class="edit-box-content-btn">
-                                                         <button class="edit-box-content-btn-save" onclick="edit_order(${num})">수정하기</button>
-                                                         <button class="edit-box-content-btn-cancel" onclick="close_edit()">닫기</button>
-                                                     </div>
-                                                 </div>
-                                             </div> `
-                         } else {
-                             temp_html = ``
-                         }
-                            $('#edit-box').append(temp_html) // id: edit-box에 temp_html을 추가한다.
-                     }
-                }
-            });
-        }
-           // 수정입력 박스 닫기, 수정입력박스 id: #edit-box
-        function close_edit(){
-            $('#edit-box').hide()
-            window.location.reload()
-        }
-
-        //수정하기 버튼 선택 시, edit_order() 함수실행
-        function edit_order(num){
-                let url = $('#url_e').val()
-                let star = $('#star_e').val()
-                let comment = $('#comment_e').val()
-                    $.ajax({
-                        type: 'POST',
-                        url: '/save/edit',
-                        data: {url_give: url, star_give: star, comment_give: comment, num_give: num },
-                        success: function (response) {
-                            alert(response['msg'])
-                            window.location.reload()
-                        }
-                });
-        }
     </script>
 </head>
 <body>

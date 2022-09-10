@@ -26,18 +26,6 @@ def home():
 def login():
     return User().login()   # 로그인 함수 실행
 
-#로그아웃 routes
-@app.route('/user/signout')
-def signout():
-    return User().signout()
-
-#회원가입 routes GET 요청
-@app.route('/user/signup', methods=['GET'])
-def signup_get():
-    input_list = list(db.users.find({}, {'_id': False}))
-    from flask import jsonify
-    return jsonify({'result': 'success', 'msg': '회원가입 완료', 'input_list': input_list})
-
 #회원가입 routes
 @app.route('/user/signup', methods=['POST'])
 def signup():
@@ -53,9 +41,4 @@ def signup():
     db.users.insert_one(doc)
     print(doc, '회원가입 완료')
 
-    return jsonify({'result': 'success', 'msg': '회원가입이 완료되었습니다.'})
-
-
-
-
-
+    return User().signup()
